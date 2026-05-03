@@ -1,0 +1,2 @@
+livekit-agents[anam,silero]~=1.4
+python-dotenv
