@@ -1,16 +1,5 @@
 import ssl
-import certifi
-
-# Fix corporate SSL — must be before any other imports
-ssl_context = ssl.create_default_context(cafile=certifi.where())
-
-import aiohttp.connector
-_orig_init = aiohttp.TCPConnector.__init__
-def _patched_init(self, *args, **kwargs):
-    kwargs.setdefault('ssl', ssl_context)
-    _orig_init(self, *args, **kwargs)
-aiohttp.TCPConnector.__init__ = _patched_init
-
+ssl._create_default_https_context = ssl._create_unverified_context
 
 import os
 from dotenv import load_dotenv
@@ -24,11 +13,13 @@ load_dotenv()
 class MedMuseumAgent(Agent):
     def __init__(self):
         super().__init__(
-            instructions="You are Anil, an AI avatar about fixing boredom at workplace . Answer sacracastically and humorously. Be concise and witty. Avoid long explanations. Use humor to keep the conversation light and engaging."
+            instructions="You are Anil, an AI avatar all about fixing boredom at workplace." \
+            " Answer with a bit of sarcasm. Be concise." \
+            " Avoid long explanations. Use humor to keep the conversation light and engaging."
         )
 
     async def on_enter(self):
-        await self.session.say("Hello! I'm Anil. Ask me anything.")
+        await self.session.say("Hello! I'm Anil. Let's talk and chill out.")
 
 
 server = AgentServer()
@@ -56,8 +47,8 @@ async def entrypoint(ctx: agents.JobContext):
         ),
     )
 
-    await session.start(room=ctx.room, agent=MedMuseumAgent())
     await avatar.start(session, room=ctx.room)
+    await session.start(room=ctx.room, agent=MedMuseumAgent())
 
 
 if __name__ == "__main__":
